@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ActivityIndicator } from 'react-native'
 import { useAuth } from '../context/AuthContext'
 
 const LoadingScreen = () => {
   const { tryLocalSignin } = useAuth()
+
   useEffect(() => {
     tryLocalSignin()
   }, [])
-  return null
+
+  return <ActivityIndicator />
 }
 
 export default LoadingScreen
