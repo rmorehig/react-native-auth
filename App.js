@@ -10,8 +10,10 @@ import TrackListScreen from './screens/TrackListScreen'
 import TrackDetailScreen from './screens/TrackDetailScreen'
 import { Provider as AuthProvider } from './context/AuthContext'
 import { setNavigator } from './utils/navigation'
+import LoadingScreen from './screens/LoadingScreen'
 
 const switchNavigator = createSwitchNavigator({
+  Loading: LoadingScreen,
   loginFlow: createStackNavigator({
     Signup: {
       screen: SignupScreen,
@@ -19,7 +21,12 @@ const switchNavigator = createSwitchNavigator({
         headerShown: false
       })
     },
-    Signin: SigninScreen
+    Signin: {
+      screen: SigninScreen,
+      navigationOptions: ({}) => ({
+        headerShown: false
+      })
+    }
   }),
   mainFlow: createBottomTabNavigator({
     trackListFlow: createStackNavigator({

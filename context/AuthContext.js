@@ -18,9 +18,48 @@ const authReducer = (state, action) => {
         ...state,
         token: action.payload
       }
+    case 'SIGNIN_ERROR':
+      return {
+        ...state,
+        errorMessage: action.payload
+      }
+    case 'SIGNIN_SUCCESS':
+      return {
+        ...state,
+        token: action.payload
+      }
+    case 'CLEAR_ERROR':
+      return {
+        ...state,
+        errorMessage: null
+      }
+    case 'SIGNOUT_ERROR':
+      return {
+        ...state,
+        errorMessage: action.payload
+      }
+    case 'SIGNOUT_SUCCESS':
+      return {
+        ...state,
+        token: null
+      }
     default:
       return state
   }
+}
+
+const tryLocalSignin = dispatch => async () => {
+  const token = await AsyncStorage.getItem('token')
+  if (token) {
+    dispatch({ type: 'SIGNIN_SUCCESS', payload: token })
+    navigate('TrackList')
+  } else {
+    navigate('loginFlow')
+  }
+}
+
+const clearErrorMessage = dispatch => () => {
+  dispatch({ type: 'CLEAR_ERROR' })
 }
 
 const signup = dispatch => async ({ email, password }) => {
@@ -32,17 +71,36 @@ const signup = dispatch => async ({ email, password }) => {
   } catch (error) {
     dispatch({
       type: 'SIGNUP_ERROR',
-      payload: 'Something went wrong with SignUp'
+      payload: 'Something went wrong with sign up'
     })
   }
 }
 
-const signin = dispatch => {
-  return ({ email, password }) => {}
+const signin = dispatch => async ({ email, password }) => {
+  try {
+    const response = await api.post('/signin', { email, password })
+    await AsyncStorage.setItem('token', response.data.token)
+    dispatch({ type: 'SIGNIN_SUCCESS', payload: response.data.token })
+    navigate('TrackList')
+  } catch (error) {
+    dispatch({
+      type: 'SIGNIN_ERROR',
+      payload: 'Something went wrong with sign in'
+    })
+  }
 }
 
-const signout = dispatch => {
-  return () => {}
+const signout = dispatch => async () => {
+  try {
+    await AsyncStorage.removeItem('token')
+    dispatch({ type: 'SIGNOUT_SUCCESS' })
+    navigate('loginFlow')
+  } catch (error) {
+    dispatch({
+      type: 'SIGNOUT_ERROR',
+      payload: 'Something went wrong with sign out'
+    })
+  }
 }
 
 export const { Provider, Context } = createDataContext(
@@ -50,7 +108,9 @@ export const { Provider, Context } = createDataContext(
   {
     signin,
     signout,
-    signup
+    signup,
+    clearErrorMessage,
+    tryLocalSignin
   },
   initialState
 )

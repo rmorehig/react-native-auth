@@ -1,48 +1,26 @@
-import React, { useState } from 'react'
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
-import { Button, Input, Text } from 'react-native-elements'
-import Spacer from '../components/Spacer'
+import React, { useEffect } from 'react'
+import { StyleSheet, View } from 'react-native'
 import { useAuth } from '../context/AuthContext'
+import AuthForm from '../components/AuthForm'
+import NavLink from '../components/NavLink'
+import { NavigationEvents } from 'react-navigation'
 
 const SignupScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const { state, signup } = useAuth()
-  console.log(state)
+  const { state, signup, clearErrorMessage } = useAuth()
+
   return (
     <View style={styles.container}>
-      <Spacer>
-        <Text h3>Sign Up for Tracker</Text>
-      </Spacer>
-      <Input
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        autoCorrect={false}
+      <NavigationEvents onWillBlur={clearErrorMessage} />
+      <AuthForm
+        headerText="Sign Up for Tracker"
+        errorMessage={state.errorMessage}
+        onSubmit={signup}
+        submitButtonText="Sign Up"
       />
-      <Spacer />
-      <Input
-        secureTextEntry
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        autoCapitalize="none"
-        autoCorrect={false}
+      <NavLink
+        routeName="Signin"
+        text=" Already have an account? Sign in instead"
       />
-      {state.errorMessage && (
-        <Text style={styles.error}>{state.errorMessage}</Text>
-      )}
-      <Spacer>
-        <Button title="Sign Up" onPress={() => signup({ email, password })} />
-      </Spacer>
-      <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
-        <Spacer>
-          <Text style={styles.link}>
-            Already have an account? Sign in instead
-          </Text>
-        </Spacer>
-      </TouchableOpacity>
     </View>
   )
 }
@@ -52,12 +30,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     marginBottom: 200
-  },
-  error: {
-    fontSize: 16,
-    color: 'red',
-    marginLeft: 15,
-    marginTop: 15
   },
   link: {
     color: 'blue'
